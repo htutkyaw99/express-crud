@@ -1,5 +1,6 @@
 import { matchedData, validationResult } from "express-validator";
 import db from "../../prisma/database.js";
+import path from "path";
 
 //get all users
 export const getUsers = async (req, res) => {
@@ -44,9 +45,8 @@ export const getUser = async (req, res) => {
 };
 
 export const registerUser = async (req, res) => {
-  //return validation result
+  // Return validation result
   const result = validationResult(req);
-
   if (!result.isEmpty()) {
     return res.status(400).json({
       statusCode: 400,
@@ -55,14 +55,19 @@ export const registerUser = async (req, res) => {
     });
   }
 
-  //return validated data
+  // Return validated data
   const user = matchedData(req);
 
   try {
+    const imagePath = req.file ? path.join("uploads", req.file.filename) : "";
+
+    console.log(imagePath);
+
     const newUser = await db.user.create({
       data: {
         name: user.name,
         email: user.email,
+        image: imagePath,
       },
     });
 
